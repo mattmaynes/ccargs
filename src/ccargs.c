@@ -1,5 +1,4 @@
 #include "ccargs.h"
-#include <string.h>
 
 #define __UNKNOWN_CMD__ '?'
 #define __INVALID_ARGC__ ':'
@@ -62,6 +61,50 @@ int _iswhitespace(char c);
  */
 int _cmdtok(char* vec, char* ccmd, int max, int index);
 
+/**
+ * String Copy
+ * @private
+ *
+ * Copys a string from the source to the destination up to the maximum
+ * number of characters. The return is the number of characters that were
+ * copied
+ *
+ * @param *dest The destination character array
+ * @param *src The source character array
+ * @param max The maximum number of characters to copy
+ *
+ * @return The number of copied characters or -1 on error
+ */
+int _strncpy(char* dest, char* src, int max);
+
+/**
+ * String Length
+ * @private
+ *
+ * Counts the number of characters in a string until it finds the 
+ * null terminator '\0'
+ *
+ * @param *str The string to count valid characters
+ *
+ * @return The number of chracters or -1 on error
+ */
+int _strlen(char* str);
+
+/**
+ * String Equals
+ * @private
+ *
+ * Checks if the two strings are equal. If the string match then there
+ * is a return of 1. If they are not equal then there is a return of 0.
+ * If there is an error such as null pointers then there is a return of -1
+ *
+ * @param *base The base string to compare
+ * @param *cmp The string to compare to
+ * 
+ * @return 1 if equal, 0 if not equal and -1 on error
+ */
+int _strequ(char* base, char* cmp);
+
 char get_cc(ccmd* cmds, int argc, char* prompt){
 	char buffer[__MAX_CMD_LEN__ + __TOTAL_ARG_LEN__];
 	int clen = 0; char valid = 0;
@@ -76,7 +119,7 @@ char get_cc(ccmd* cmds, int argc, char* prompt){
 		// Short circuit if the stream is closed
 		if(fgets(buffer, __MAX_CMD_LEN__ + __TOTAL_ARG_LEN__, stdin) <= 0) return -1;
 		_trim(buffer);
-		clen = strlen(buffer);
+		clen = _strlen(buffer);
 	}
 	_init_cmds(buffer, clen);
 	
@@ -111,7 +154,7 @@ int count_carg(void){
 
 
 int valid_ccmd(ccmd opt){	 
-	if(strcmp(cmdopt, opt.cmd) == 0)
+	if(_strequ(cmdopt, opt.cmd))
 	 	return opt.argc == count_carg() ? 1 : -1;
 	return 0;
 }
@@ -121,7 +164,7 @@ void _init_cmds(char* cmdcmd, int clen){
 	olen = _cmdtok(cmdcmd, cmdopt, __MAX_CMD_LEN__, 0);
 
 	alen = clen - olen;
-	strncpy(cmdarg, cmdcmd + olen , alen);
+	_strncpy(cmdarg, cmdcmd + olen , alen);
 	_trim(cmdarg);
 }
 
@@ -133,7 +176,7 @@ int _cmdtok(char* vec, char* ccmd, int max, int index){
 	if(vec == 0 || *vec == '\0') return 0;
 	
 	// Get the length of the command vector	
-	cmdlen = strlen(vec);
+	cmdlen = _strlen(vec);
 	
 	// Loop over each character
 	for(int i = 0; i < cmdlen && ci < max - 1; i++){
@@ -172,7 +215,7 @@ int _iswhitespace(char c){
 void _trim(char* str){
 	if(str == 0) return;
 	char* p = str;
-	int len = strlen(str);
+	int len = _strlen(str);
 
 	// Trim front
 	while(*p != 0 && _iswhitespace(*p)){
@@ -180,16 +223,37 @@ void _trim(char* str){
 	}
 	
 	// Trim end
-	int i = strlen(p) - 1;
+	int i = _strlen(p) - 1;
 	while(i > 0 && _iswhitespace(p[i])){
 		p[i] = '\0';
 		i--;
 	}
 
-	i = 0;
-	while(i < len && p <= (str + len)){
-		str[i] = *p;
+	_strncpy(str, p, len);
+}
+
+int _strncpy(char* dest, char* src, int max){
+	int i = 0;
+	if(dest == 0 || src == 0) return -1;
+	while(i < max - 1 && src[i] != '\0'){
+		dest[i] = src[i];
 		i++;
-		p++;
 	}
+	dest[i] = '\0';
+	return 0;
+
+}
+
+int _strlen(char* str){
+	int i = 0;
+	if(str == 0) return -1;
+	while(str[i] != '\0') i++;
+	return i;
+}
+
+int _strequ(char* base, char* cmp){
+	int i = 0; 
+	if(base == 0 || cmp == 0) return -1;
+	while(base[i] != '\0' && cmp[i] != '\0' && base[i] == cmp[i]) i++;
+	return base[i] == '\0' && cmp[i] == '\0';
 }
