@@ -48,6 +48,7 @@ typedef struct ccmd_t{
  * correct number of arguments.
  *
  * @param *cmds The valid commands that can be parsed from the input stream
+ * @param argc The number of command options in the cmds array.
  *
  * @param *prompt 
  * An optional prompt to print before the user enters a command.
@@ -66,7 +67,7 @@ typedef struct ccmd_t{
  * @end
  * 
  */
-char get_cc(ccmd* cmds, char* prompt);
+char get_cc(ccmd* cmds, int argc, char* prompt);
 
 /**
  * Get Console Argument
@@ -108,11 +109,16 @@ int count_carg(void);
  *
  * Checks if the given console command against the last entered console command. 
  * If this command option is valid then it returns with 1. If the command option
- * is not not valid then there is a return of 0.
+ * is not not valid then there is a return of 0. If the argument count does not
+ * match the required number then -1 is returned
  *
  * @param opt A console command option to validate against the last entered command
  *
- * @return 0 if the option is not valid, 1 if it is.
+ * @return 
+ * 1 If the option is valid
+ * 0 If the option is invalid
+ * -1 If the option matches but has the wrong number of arguments
+ * @end 
  */
 int valid_ccmd(ccmd opt);
 
