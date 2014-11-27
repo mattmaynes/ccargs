@@ -2,6 +2,8 @@
 
 #define __UNKNOWN_CMD__ '?'
 #define __INVALID_ARGC__ ':'
+#define __LINE_TERM__ '\n'
+#define __REG_SIZE__ 3
 
 char cmdopt[__MAX_CMD_LEN__];
 char cmdarg[__TOTAL_ARG_LEN__];
@@ -26,6 +28,17 @@ void _init_cmds(char* cmdcmd,  int len);
  * @param *str The string to trim
  */
 void _trim(char* str);
+
+/**
+ * Erase
+ * @private
+ *
+ * Cleans a string by filling it with 0's
+ *
+ * @param *str The string to fill
+ * @param n The number of characters to change to 0
+ */
+void _erase(char* str, int n);
 
 /**
  * Is Whitespace
@@ -105,24 +118,57 @@ int _strlen(char* str);
  */
 int _strequ(char* base, char* cmp);
 
+/**
+ * Shift Right
+ * @private
+ *
+ * Shifts the leftmost character of the register into the index 
+ * slot in the buffer. The register is the shifted to the left one.
+ * The void created by the shift is filled by the fill character.
+ * The registers are shifted n times. If n is greater then 1 then 
+ * for each subsequent shift, index is incremented.
+ * 
+ * **Note: It is assumed that buffer has enough space to have n
+ * characters put into it.
+ *
+ * @param *buffer The space to put the shifted character into
+ * @param *reg The register to shift out of
+ * @param size The size of the register
+ * @param fill The default character to shift into the right of the register
+ * @param n The number of shifts to perform
+ * @param index The index of the buffer to insert the new character from the register
+ *
+ * @return 0 If the shift was successful or -1 on error
+ */
+int _shiftl(char* buffer, char* reg, int size, char fill, int n, int index);
+
 char get_cc(ccmd* cmds, int argc, char* prompt){
 	char buffer[__MAX_CMD_LEN__ + __TOTAL_ARG_LEN__];
+	char reg[__REG_SIZE__]; char c;
 	int clen = 0; char valid = 0;
-	int i = 0;
+	int i = -__REG_SIZE__;
 	*cmdopt = '\0';
 	*cmdarg = '\0';
 
+	_erase(buffer, __MAX_CMD_LEN__ + __TOTAL_ARG_LEN__);
 	while(clen == 0){
 		// If there is a prompt to print then print it
 		if(prompt != 0) fprintf(stdout, "%s", prompt);	
-		
-		// Short circuit if the stream is closed
-		if(fgets(buffer, __MAX_CMD_LEN__ + __TOTAL_ARG_LEN__, stdin) <= 0) return -1;
+	
+		 _erase(reg, __REG_SIZE__); 
+		c = fgetc(stdin);
+		while(i < __MAX_CMD_LEN__ + __TOTAL_ARG_LEN__ && c != __LINE_TERM__){
+			_shiftl(buffer, reg, __REG_SIZE__, c, 1, i);
+			c = fgetc(stdin); 
+			i++;
+		}
+		_shiftl(buffer, reg, __REG_SIZE__, '\0', __REG_SIZE__, i);	
 		_trim(buffer);
 		clen = _strlen(buffer);
 	}
 	_init_cmds(buffer, clen);
 	
+	i = 0;
 	while(i < argc){
 		valid = valid_ccmd(cmds[i]);
 		if(valid == 1){
@@ -162,9 +208,8 @@ int valid_ccmd(ccmd opt){
 void _init_cmds(char* cmdcmd, int clen){
 	int olen = 0; int alen = 0;
 	olen = _cmdtok(cmdcmd, cmdopt, __MAX_CMD_LEN__, 0);
-
-	alen = clen - olen;
-	_strncpy(cmdarg, cmdcmd + olen , alen);
+	alen = 1 + clen - olen;
+	_strncpy(cmdarg, cmdcmd + olen, alen);
 	_trim(cmdarg);
 }
 
@@ -232,10 +277,25 @@ void _trim(char* str){
 	_strncpy(str, p, len);
 }
 
+int _shiftl(char* buffer, char* reg, int size, char fill, int n, int index){
+	char* r = reg;
+	char* p = buffer + (index > 0 ? index : 0);
+	if(buffer == 0 || reg == 0) return -1;
+	if(n == 0) return 0;
+	*p = *r;
+	r++;
+	while(r < reg + size){
+		*(r - 1) = *r;
+		r++;
+	}
+	*(--r) = fill;
+	return _shiftl(buffer, reg, size, fill, n - 1, index + 1);
+}
+
 int _strncpy(char* dest, char* src, int max){
 	int i = 0;
 	if(dest == 0 || src == 0) return -1;
-	while(i < max - 1 && src[i] != '\0'){
+	while(i < max  && src[i] != '\0'){
 		dest[i] = src[i];
 		i++;
 	}
@@ -256,4 +316,11 @@ int _strequ(char* base, char* cmp){
 	if(base == 0 || cmp == 0) return -1;
 	while(base[i] != '\0' && cmp[i] != '\0' && base[i] == cmp[i]) i++;
 	return base[i] == '\0' && cmp[i] == '\0';
+}
+
+void _erase(char* str, int n){
+	while(n > 0){
+		n--;
+		str[n] = '\0';
+	}
 }
