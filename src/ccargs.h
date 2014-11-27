@@ -5,17 +5,18 @@
 
 #define __MAX_CMD_LEN__ 128
 #define __MAX_ARG_LEN__ 128
-#define __MAX_ARGS__ 32
+#define __MAX_ARGS__ 10
+#define __TOTAL_ARG_LEN__ __MAX_ARG_LEN__ * __MAX_ARGS__
 
 /**
  * Points to the last invoked console command
  */
-extern char* cmdopt;
+extern char cmdopt[__MAX_CMD_LEN__];
 
 /**
  * Points to the last invoked commands argument vector
  */
-extern char* cmdarg;
+extern char cmdarg[__TOTAL_ARG_LEN__];
 
 /**
  * The command structure for validating console commands

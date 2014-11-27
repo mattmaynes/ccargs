@@ -1,20 +1,11 @@
 #include "ccargs.h"
 #include <string.h>
-#include <stdlib.h>
 
 #define __UNKNOWN_CMD__ '?'
 #define __INVALID_ARGC__ ':'
 
-char* cmdopt;
-char* cmdarg;
-
-/**
- * Free Commands
- * @private
- *
- * Frees the global 'cmdopt', 'cmdcmd' and 'cmdarg' if they are allocated
- */
-void _free_cmds(void);
+char cmdopt[__MAX_CMD_LEN__];
+char cmdarg[__TOTAL_ARG_LEN__];
 
 /**
  * Initialize Commands
@@ -72,26 +63,22 @@ int _iswhitespace(char c);
 int _cmdtok(char* vec, char* ccmd, int max, int index);
 
 char get_cc(ccmd* cmds, int argc, char* prompt){
-	char buffer[__MAX_ARG_LEN__ * __MAX_ARGS__];
-	char* cmdcmd;
+	char buffer[__MAX_CMD_LEN__ + __TOTAL_ARG_LEN__];
 	int clen = 0; char valid = 0;
 	int i = 0;
-	_free_cmds();
-	
+	*cmdopt = '\0';
+	*cmdarg = '\0';
+
 	while(clen == 0){
 		// If there is a prompt to print then print it
 		if(prompt != 0) fprintf(stdout, "%s", prompt);	
 		
 		// Short circuit if the stream is closed
-		if(fgets(buffer, __MAX_ARG_LEN__ * __MAX_ARGS__, stdin) <= 0) return -1;
+		if(fgets(buffer, __MAX_CMD_LEN__ + __TOTAL_ARG_LEN__, stdin) <= 0) return -1;
 		_trim(buffer);
 		clen = strlen(buffer);
 	}
-	
-	cmdcmd = (char*)malloc(sizeof(char) * clen);
-	strncpy(cmdcmd, buffer, clen);
-	_init_cmds(cmdcmd, clen);
-	free(cmdcmd);
+	_init_cmds(buffer, clen);
 	
 	while(i < argc){
 		valid = valid_ccmd(cmds[i]);
@@ -114,12 +101,11 @@ int get_carg(char* carg, int max, int index){
 
 int count_carg(void){
 	int count = 0;
-	char *arg = (char*)malloc(sizeof(char) * __MAX_ARG_LEN__);
+	char arg[__MAX_ARG_LEN__];
 	while(get_carg(arg, __MAX_ARG_LEN__, count) > 0){
 		count++;
 	}
 	
-	free(arg);
 	return count;
 }
 
@@ -130,19 +116,11 @@ int valid_ccmd(ccmd opt){
 	return 0;
 }
 
-void _free_cmds(void){
-	if(cmdopt > 0) free(cmdopt);
-	if(cmdarg > 0) free(cmdarg);
-}
-
 void _init_cmds(char* cmdcmd, int clen){
 	int olen = 0; int alen = 0;
-	cmdopt = (char*)malloc(sizeof(char) * __MAX_CMD_LEN__);
-	_cmdtok(cmdcmd, cmdopt, __MAX_CMD_LEN__, 0);
-	
-	olen = strlen(cmdopt);
+	olen = _cmdtok(cmdcmd, cmdopt, __MAX_CMD_LEN__, 0);
+
 	alen = clen - olen;
-	cmdarg = (char*)malloc(sizeof(char) * alen);
 	strncpy(cmdarg, cmdcmd + olen , alen);
 	_trim(cmdarg);
 }
@@ -151,14 +129,14 @@ int _cmdtok(char* vec, char* ccmd, int max, int index){
 	int cmdlen = 0; int tokc = 0; int ci = 0;
 	int quot = 0; int apos = 0;
 	// Short circuit if there is an issue
-	if(vec == 0) return 0;
 	if(ccmd == 0) return -1;
+	if(vec == 0 || *vec == '\0') return 0;
 	
 	// Get the length of the command vector	
 	cmdlen = strlen(vec);
 	
 	// Loop over each character
-	for(int i = 0; i < cmdlen && ci < max; i++){
+	for(int i = 0; i < cmdlen && ci < max - 1; i++){
 		ccmd[ci] = 0;
 		if(vec[i] == '"') quot = !quot & !apos;
 		if(vec[i] == '\'') apos = !apos & !quot;
@@ -183,6 +161,7 @@ int _cmdtok(char* vec, char* ccmd, int max, int index){
 			return ci;
 		}
 	}
+	ccmd[ci] = 0;
 	return ci;
 }
 
