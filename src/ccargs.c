@@ -160,8 +160,8 @@ int _cmdtok(char* vec, char* ccmd, int max, int index){
 	// Loop over each character
 	for(int i = 0; i < cmdlen && ci < max; i++){
 		ccmd[ci] = 0;
-		if(vec[i] == '"') quot = !quot;
-		if(vec[i] == '\'') apos = !apos;
+		if(vec[i] == '"') quot = !quot & !apos;
+		if(vec[i] == '\'') apos = !apos & !quot;
 		
 		// If we hit a token delemeter
 		if((vec[i] == ' ' || vec[i] == '\t') && !quot && !apos){
