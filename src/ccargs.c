@@ -367,20 +367,20 @@ int _strncpy(char* dest, char* src, int max){
 int _strlen(char* str){
 	int i = 0;
 	if(str == 0) return -1;
-	while(str[i] != '\0') i++;
+	while(str[i] != __NULL__) i++;
 	return i;
 }
 
 int _strequ(char* base, char* cmp){
 	int i = 0; 
 	if(base == 0 || cmp == 0) return -1;
-	while(base[i] != '\0' && cmp[i] != '\0' && base[i] == cmp[i]) i++;
-	return base[i] == '\0' && cmp[i] == '\0';
+	while(base[i] != __NULL__ && cmp[i] != __NULL__ && base[i] == cmp[i]) i++;
+	return base[i] == __NULL__ && cmp[i] == __NULL__;
 }
 
 void _erase(char* str, int n){
 	while(n > 0){
 		n--;
-		str[n] = '\0';
+		str[n] = __NULL__;
 	}
 }
