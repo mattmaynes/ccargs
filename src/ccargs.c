@@ -1,9 +1,17 @@
 #include "ccargs.h"
 
+#define __NULL__ '\0'
+
 #define __UNKNOWN_CMD__ '?'
 #define __INVALID_ARGC__ ':'
+
+#define __ESCAPE_CHAR__ '\\'
+#define __QUOT__ '"'
+#define __APOS__ '\''
+
 #define __LINE_TERM__ '\n'
 #define __REG_SIZE__ 3
+
 
 char cmdopt[__MAX_CMD_LEN__];
 char cmdarg[__TOTAL_ARG_LEN__];
@@ -28,6 +36,16 @@ void _init_cmds(char* cmdcmd,  int len);
  * @param *str The string to trim
  */
 void _trim(char* str);
+
+/**
+ * Clean
+ * @private
+ *
+ * Removes any escape characters and quotes from the given string
+ *
+ * @param *str The string to clean
+ */
+void _clean(char* str);
 
 /**
  * Erase
@@ -147,8 +165,8 @@ char get_cc(ccmd* cmds, int argc, char* prompt){
 	char reg[__REG_SIZE__]; char c;
 	int clen = 0; char valid = 0;
 	int i = -__REG_SIZE__;
-	*cmdopt = '\0';
-	*cmdarg = '\0';
+	*cmdopt = __NULL__;
+	*cmdarg = __NULL__;
 
 	_erase(buffer, __MAX_CMD_LEN__ + __TOTAL_ARG_LEN__);
 	while(clen == 0){
@@ -162,7 +180,7 @@ char get_cc(ccmd* cmds, int argc, char* prompt){
 			c = fgetc(stdin); 
 			i++;
 		}
-		_shiftl(buffer, reg, __REG_SIZE__, '\0', __REG_SIZE__, i);	
+		_shiftl(buffer, reg, __REG_SIZE__, __NULL__, __REG_SIZE__, i);	
 		_trim(buffer);
 		clen = _strlen(buffer);
 	}
@@ -172,6 +190,7 @@ char get_cc(ccmd* cmds, int argc, char* prompt){
 	while(i < argc){
 		valid = valid_ccmd(cmds[i]);
 		if(valid == 1){
+			_clean(cmdarg);
 			if(cmds[i].flag != 0) *(cmds[i].flag) = 1;
 			return cmds[i].scmd;
 		}
@@ -215,22 +234,27 @@ void _init_cmds(char* cmdcmd, int clen){
 
 int _cmdtok(char* vec, char* ccmd, int max, int index){
 	int cmdlen = 0; int tokc = 0; int ci = 0;
-	int quot = 0; int apos = 0;
+	int quot = 0; int apos = 0; int escp = 0;
+	
 	// Short circuit if there is an issue
 	if(ccmd == 0) return -1;
-	if(vec == 0 || *vec == '\0') return 0;
+	if(vec == 0 || *vec == __NULL__) return 0;
 	
 	// Get the length of the command vector	
 	cmdlen = _strlen(vec);
 	
 	// Loop over each character
 	for(int i = 0; i < cmdlen && ci < max - 1; i++){
-		ccmd[ci] = 0;
-		if(vec[i] == '"') quot = !quot & !apos;
-		if(vec[i] == '\'') apos = !apos & !quot;
-		
+		ccmd[ci] = 0; escp = 0;
+		if(vec[i] == __ESCAPE_CHAR__){
+			escp = 1;
+			i++;
+		}
+
+		if(!escp && vec[i] == __QUOT__) quot = !quot & !apos;  
+		if(!escp && vec[i] == __APOS__) apos = !apos & !quot;  
 		// If we hit a token delemeter
-		if((vec[i] == ' ' || vec[i] == '\t') && !quot && !apos){
+		if(!escp && (vec[i] == ' ' || vec[i] == '\t') && !quot && !apos){
 			tokc++;
 		}
 		// If this is the end of the string
@@ -270,11 +294,22 @@ void _trim(char* str){
 	// Trim end
 	int i = _strlen(p) - 1;
 	while(i > 0 && _iswhitespace(p[i])){
-		p[i] = '\0';
+		p[i] = __NULL__;
 		i--;
 	}
 
 	_strncpy(str, p, len);
+}
+
+void _clean(char* str){
+	char* p = str;
+	int len = _strlen(str);
+	while(*p != __NULL__){
+		if(*p == __ESCAPE_CHAR__){
+			_shiftl(str, p, len, __NULL__, 1, p - str);
+		}
+		p++;
+	}
 }
 
 int _shiftl(char* buffer, char* reg, int size, char fill, int n, int index){
@@ -295,11 +330,11 @@ int _shiftl(char* buffer, char* reg, int size, char fill, int n, int index){
 int _strncpy(char* dest, char* src, int max){
 	int i = 0;
 	if(dest == 0 || src == 0) return -1;
-	while(i < max  && src[i] != '\0'){
+	while(i < max  && src[i] != __NULL__){
 		dest[i] = src[i];
 		i++;
 	}
-	dest[i] = '\0';
+	dest[i] = __NULL__;
 	return 0;
 
 }
