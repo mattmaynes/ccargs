@@ -35,8 +35,6 @@
 #define __APOS__ '\''
 
 #define __LINE_TERM__ '\n'
-#define __REG_SIZE__ 3
-
 
 char cmdopt[__MAX_CMD_LEN__];
 char cmdarg[__TOTAL_ARG_LEN__];
@@ -187,9 +185,8 @@ int _shiftl(char* buffer, char* reg, int size, char fill, int n, int index);
 
 char get_cc(ccmd* cmds, int argc, char* prompt){
 	char buffer[__MAX_CMD_LEN__ + __TOTAL_ARG_LEN__];
-	char reg[__REG_SIZE__]; char c;
-	int clen = 0; char valid = 0;
-	int i = -__REG_SIZE__;
+ 	int clen = 0; char valid = 0;
+	int i = 0;
 	*cmdopt = __NULL__;
 	*cmdarg = __NULL__;
 
@@ -197,15 +194,8 @@ char get_cc(ccmd* cmds, int argc, char* prompt){
 	while(clen == 0){
 		// If there is a prompt to print then print it
 		if(prompt != 0) fprintf(stdout, "%s", prompt);	
-	
-		 _erase(reg, __REG_SIZE__); 
-		c = fgetc(stdin);
-		while(i < __MAX_CMD_LEN__ + __TOTAL_ARG_LEN__ && c != __LINE_TERM__){
-			_shiftl(buffer, reg, __REG_SIZE__, c, 1, i);
-			c = fgetc(stdin); 
-			i++;
-		}
-		_shiftl(buffer, reg, __REG_SIZE__, __NULL__, __REG_SIZE__, i);	
+ 
+		fgets(buffer, __MAX_CMD_LEN__ + __TOTAL_ARG_LEN__, stdin);
 		_trim(buffer);
 		clen = _strlen(buffer);
 	}
@@ -216,7 +206,7 @@ char get_cc(ccmd* cmds, int argc, char* prompt){
 		valid = valid_ccmd(cmds[i]);
 		if(valid == 1){
 			_clean(cmdarg);
-			if(cmds[i].flag != 0) *(cmds[i].flag) = 1;
+			if(cmds[i].flag != 0) *(cmds[i].flag) = !*(cmds[i].flag);
 			return cmds[i].scmd;
 		}
 		else if(valid == -1){
@@ -267,7 +257,6 @@ int _cmdtok(char* vec, char* ccmd, int max, int index){
 	
 	// Get the length of the command vector	
 	cmdlen = _strlen(vec);
-	
 	// Loop over each character
 	for(int i = 0; i < cmdlen && ci < max - 1; i++){
 		ccmd[ci] = 0; escp = 0;
