@@ -64,6 +64,6 @@ To use this command array for user input you can call `get_cc` in a loop until t
 	}
 ```
 
-For more examples on how to use `ccargs` look in the `example` directory.
+For more examples on how to use `ccargs` look in the `example` directory for `ccexp.c`.
 
 

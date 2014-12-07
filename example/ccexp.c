@@ -23,13 +23,13 @@
  *
  */
  
-#include "ccargs.h"
+#include "../src/ccargs.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
 #define __C_PROMPT__ "> "
-#define __PROG_VERSION__ "v0.2"
+#define __PROG_VERSION__ "v0.4.0"
 #define __AUTHOR__ "Matthew Maynes"
 
 int quit;
