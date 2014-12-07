@@ -13,7 +13,7 @@
 CC = gcc
 
 # define any compile-time flags
-CFLAGS = -Wall
+CFLAGS = -std=c99 -Wall
 
 # define the input and output folders
 IN = src
