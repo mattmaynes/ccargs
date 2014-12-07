@@ -25,6 +25,9 @@
  
 #include "ccargs.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #define __C_PROMPT__ "> "
 #define __PROG_VERSION__ "v0.1"
 #define __AUTHOR__ "Matthew Maynes"
@@ -33,9 +36,10 @@ int quit;
 
 static ccmd commands[] ={
 	{"about", 0, 0, 'a'},
-	{"echo", 1, 0, 'e'},
+	{"echo", -1, 0, 'e'},
 	{"exit", 0, &quit, 'x'},
-	{"help", 0, 0, 'h'}
+	{"help", 0, 0, 'h'},
+	{"sum", 2, 0, 's'}
 };
 
 void console(ccmd cmds[]);
@@ -49,11 +53,13 @@ int main(int argc, char* argv[]){
 }
 
 void console(ccmd cmds[]){
-	char cmd;
+	char buffer[128];
+	char cmd; 
+	int a, b;
 	about();
 	printf("Type 'help' for instructions\n");
 	while(!quit){
-		cmd = get_cc(cmds, 4, __C_PROMPT__);
+		cmd = get_cc(cmds, 5, __C_PROMPT__);
 		switch(cmd){
 		case 'a':
 			about();
@@ -63,6 +69,13 @@ void console(ccmd cmds[]){
 			break;
 		case 'h':
 			help();
+			break;
+		case 's':
+			get_carg(buffer, 128, 0);
+			a = atoi(buffer);
+			get_carg(buffer, 128, 1);
+			b = atoi(buffer);
+			printf("%d + %d = %d\n", a, b, a + b);
 			break;
 		case 'x':
 			printf("Bye!\n");
@@ -99,6 +112,8 @@ void help(void){
 		exit		Quits the program\n\
 \n\
 		help		Displays this message\n\
+\n\
+	  	sum [a] [b]	Adds a + b and prints their sum\n\
 \n";
 	printf("%s", msg);
 }

@@ -25,6 +25,9 @@
  
 #include "ccargs.h"
 
+#define __PROG_VERSION__ "v0.4"
+#define __AUTHOR__ "Matthew Maynes"
+
 #define __NULL__ '\0'
 
 #define __UNKNOWN_CMD__ '?'
@@ -235,7 +238,7 @@ int count_carg(void){
 
 int valid_ccmd(ccmd opt){	 
 	if(_strequ(cmdopt, opt.cmd))
-	 	return opt.argc == count_carg() ? 1 : -1;
+	 	return (opt.argc < 0 || opt.argc == count_carg()) ? 1 : -1;
 	return 0;
 }
 
