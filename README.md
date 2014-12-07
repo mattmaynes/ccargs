@@ -1,4 +1,7 @@
 #CCArgs
+
+![image](https://travis-ci.org/mattmaynes/CCArgs.svg?branch=master)
+
 ###Console Command with Arguments
 
 This is a simple console command parser that reads commands from `stdin` and checks their validity against a command vector. The syntax to use `ccargs` is based off of `getopt` syntax and can be used in the same way.
