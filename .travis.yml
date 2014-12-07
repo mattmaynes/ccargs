@@ -1,2 +1,7 @@
-script: ./run_build.sh
+language: c
+compiler: gcc
+before_script:
+	- mkdir bin
+script: 
+	- make
 
