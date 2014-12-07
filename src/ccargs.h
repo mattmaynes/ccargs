@@ -23,13 +23,14 @@
  *
  */
 
-#ifndef CCARGS_H
-#define CCARGS_H
+#ifndef _CCARGS_H
+#define _CCARGS_H
 
 #include <stdio.h>
 
 #define __MAX_CMD_LEN__ 128
 #define __MAX_ARG_LEN__ 128
+#define __MAX_ERR_LEN__ 128
 #define __MAX_ARGS__ 10
 #define __TOTAL_ARG_LEN__ __MAX_ARG_LEN__ * __MAX_ARGS__
 
@@ -42,6 +43,12 @@ extern char cmdopt[__MAX_CMD_LEN__];
  * Points to the last invoked commands argument vector
  */
 extern char cmdarg[__TOTAL_ARG_LEN__];
+
+/**
+ * Defines a message that will be printed when an invalid command is entered.
+ * This message can be used by the calling code if desired
+ */
+extern char cmderr[__MAX_ERR_LEN__];
 
 /**
  * The command structure for validating console commands

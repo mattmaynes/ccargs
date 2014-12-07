@@ -41,6 +41,7 @@
 
 char cmdopt[__MAX_CMD_LEN__];
 char cmdarg[__TOTAL_ARG_LEN__];
+char cmderr[__MAX_ERR_LEN__];
 
 /**
  * Initialize Commands
@@ -216,6 +217,7 @@ char get_cc(ccmd* cmds, int argc, char* prompt){
 			return cmds[i].scmd;
 		}
 		else if(valid == -1){
+			printf("%s", cmderr);
 			return __INVALID_ARGC__;
 		}
 		i++;
