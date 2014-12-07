@@ -29,7 +29,7 @@
 #include <stdio.h>
 
 #define __C_PROMPT__ "> "
-#define __PROG_VERSION__ "v0.1"
+#define __PROG_VERSION__ "v0.2"
 #define __AUTHOR__ "Matthew Maynes"
 
 int quit;

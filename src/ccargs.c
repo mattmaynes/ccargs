@@ -186,6 +186,9 @@ int _strequ(char* base, char* cmp);
  */
 int _shiftl(char* buffer, char* reg, int size, char fill, int n, int index);
 
+/**
+ * @public
+ */
 char get_cc(ccmd* cmds, int argc, char* prompt){
 	char buffer[__MAX_CMD_LEN__ + __TOTAL_ARG_LEN__];
  	int clen = 0; char valid = 0;
@@ -221,10 +224,16 @@ char get_cc(ccmd* cmds, int argc, char* prompt){
 	
 }
 
+/**
+ * @public
+ */
 int get_carg(char* carg, int max, int index){
 	return _cmdtok(cmdarg, carg, max, index);
 }
 
+/**
+ * @public
+ */
 int count_carg(void){
 	int count = 0;
 	char arg[__MAX_ARG_LEN__];
@@ -235,13 +244,18 @@ int count_carg(void){
 	return count;
 }
 
-
+/**
+ * @public
+ */
 int valid_ccmd(ccmd opt){	 
 	if(_strequ(cmdopt, opt.cmd))
 	 	return (opt.argc < 0 || opt.argc == count_carg()) ? 1 : -1;
 	return 0;
 }
 
+/**
+ * @private
+ */
 void _init_cmds(char* cmdcmd, int clen){
 	int olen = 0; int alen = 0;
 	olen = _cmdtok(cmdcmd, cmdopt, __MAX_CMD_LEN__, 0);
@@ -250,6 +264,9 @@ void _init_cmds(char* cmdcmd, int clen){
 	_trim(cmdarg);
 }
 
+/**
+ * @private
+ */
 int _cmdtok(char* vec, char* ccmd, int max, int index){
 	int cmdlen = 0; int tokc = 0; int ci = 0;
 	int quot = 0; int apos = 0; int escp = 0;
@@ -294,10 +311,16 @@ int _cmdtok(char* vec, char* ccmd, int max, int index){
 	return ci;
 }
 
+/**
+ * @private
+ */
 int _iswhitespace(char c){
 	return c == ' ' || c == '\n' || c == '\t' || c == '\r';
 }
 
+/**
+ * @private
+ */
 void _trim(char* str){
 	if(str == 0) return;
 	char* p = str;
@@ -318,6 +341,9 @@ void _trim(char* str){
 	_strncpy(str, p, len);
 }
 
+/**
+ * @private
+ */
 void _clean(char* str){
 	char* p = str;
 	int len = _strlen(str);
@@ -329,6 +355,9 @@ void _clean(char* str){
 	}
 }
 
+/**
+ * @private
+ */
 int _shiftl(char* buffer, char* reg, int size, char fill, int n, int index){
 	char* r = reg;
 	char* p = buffer + (index > 0 ? index : 0);
@@ -344,6 +373,9 @@ int _shiftl(char* buffer, char* reg, int size, char fill, int n, int index){
 	return _shiftl(buffer, reg, size, fill, n - 1, index + 1);
 }
 
+/**
+ * @private
+ */
 int _strncpy(char* dest, char* src, int max){
 	int i = 0;
 	if(dest == 0 || src == 0) return -1;
@@ -356,6 +388,9 @@ int _strncpy(char* dest, char* src, int max){
 
 }
 
+/**
+ * @private
+ */
 int _strlen(char* str){
 	int i = 0;
 	if(str == 0) return -1;
@@ -363,6 +398,9 @@ int _strlen(char* str){
 	return i;
 }
 
+/**
+ * @private
+ */
 int _strequ(char* base, char* cmp){
 	int i = 0; 
 	if(base == 0 || cmp == 0) return -1;
@@ -370,6 +408,9 @@ int _strequ(char* base, char* cmp){
 	return base[i] == __NULL__ && cmp[i] == __NULL__;
 }
 
+/**
+ * @private
+ */
 void _erase(char* str, int n){
 	while(n > 0){
 		n--;
