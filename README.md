@@ -1,6 +1,6 @@
 #CCArgs
 
-![image](https://travis-ci.org/mattmaynes/CCArgs.svg?branch=master)
+[![Build Status](https://travis-ci.org/mattmaynes/ccargs.svg?branch=master)](https://travis-ci.org/mattmaynes/ccargs)
 
 ###Console Command with Arguments
 
